@@ -562,22 +562,30 @@
             renderAll();
         }
 
-        // Оформить заказ
-        function placeOrder() {
-            sendDataToBot({
-                action: 'place_order'
-            });
-            
-            // Обновляем локальные данные
-            userData.orders.push({
-                order_id: 'temp_' + Date.now(),
-                products: [...userData.cart],
-                total: userData.cart.reduce((sum, item) => sum + (item.product.price * item.hours), 0)
-            });
-            
-            userData.cart = [];
-            renderAll();
-        }
+        // В функции placeOrder() добавьте дату заказа:
+function placeOrder() {
+    const orderDate = new Date().toISOString().split('T')[0].replace(/-/g, '.');
+    
+    sendDataToBot({
+        action: 'place_order',
+        order_date: orderDate
+    });
+    
+    // Обновляем локальные данные
+    userData.orders.push({
+        order_id: 'temp_' + Date.now(),
+        products: [...userData.cart],
+        total: userData.cart.reduce((sum, item) => sum + (item.product.price * item.hours), 0),
+        date: orderDate
+    });
+    
+    userData.cart = [];
+    renderAll();
+    
+    // Показываем уведомление
+    const product = userData.orders[userData.orders.length - 1].products[0].product;
+    alert(`Заказ оформлен!\nМодель: ${product.name}\nДата: ${orderDate}`);
+}
 
         // Отправка данных в бота
         function sendDataToBot(data) {
